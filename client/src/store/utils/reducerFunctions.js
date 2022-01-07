@@ -17,7 +17,7 @@ export const addMessageToStore = (state, payload) => {
     state[cIndex] = {
       ...state[cIndex],
       latestMessageText: message.text,
-      messages: [message, ...state[cIndex].messages],
+      messages: [...state[cIndex].messages, message],
     };
     return [].concat(...state);
   }
