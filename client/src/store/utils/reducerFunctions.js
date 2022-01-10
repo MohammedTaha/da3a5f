@@ -12,16 +12,17 @@ export const addMessageToStore = (state, payload) => {
     return [newConvo, ...state];
   }
 
-  let cIndex = state.findIndex(({ id }) => id === message.conversationId);
-  if (cIndex > -1) {
-    state[cIndex] = {
-      ...state[cIndex],
-      latestMessageText: message.text,
-      messages: [...state[cIndex].messages, message],
-    };
-    return [].concat(...state);
-  }
-  return state;
+  return state.map((convo) => {
+    if (convo.id === message.conversationId) {
+      return {
+        ...convo,
+        messages: [...convo.messages, message],
+        latestMessageText: message.text,
+      };
+    } else {
+      return convo;
+    }
+  });
 };
 
 export const addOnlineUserToStore = (state, id) => {
@@ -69,16 +70,16 @@ export const addSearchedUsersToStore = (state, users) => {
 };
 
 export const addNewConvoToStore = (state, recipientId, message) => {
-  let cIndex = state.findIndex(({ otherUser }) => otherUser.id === recipientId);
-
-  if (cIndex > -1) {
-    state[cIndex] = {
-      ...state[cIndex],
-      id: message.conversationId,
-      messages: [...state[cIndex].messages, message],
-      latestMessageText: message.text,
-    };
-    return [].concat(...state);
-  }
-  return state;
+  return state.map((convo) => {
+    if (convo.otherUser.id === recipientId) {
+      return {
+        ...convo,
+        id: message.conversationId,
+        messages: [...convo.messages, message],
+        latestMessageText: message.text,
+      };
+    } else {
+      return convo;
+    }
+  });
 };
