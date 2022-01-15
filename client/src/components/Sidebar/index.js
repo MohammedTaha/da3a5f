@@ -1,4 +1,5 @@
 export { default as ChatContent } from "./ChatContent";
+export { default as UnreadMessagesCountBadge } from "./unreadMessagesCountBadge";
 export { default as CurrentUser } from "./CurrentUser";
 export { default as Search } from "./Search";
 export { default as Sidebar } from "./Sidebar";

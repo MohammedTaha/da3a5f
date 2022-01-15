@@ -1,6 +1,6 @@
 import React from "react";
 import { Box } from "@material-ui/core";
-import { BadgeAvatar, ChatContent } from "../Sidebar";
+import { BadgeAvatar, ChatContent, UnreadMessagesCountBadge } from "../Sidebar";
 import { makeStyles } from "@material-ui/core/styles";
 import { setActiveChat } from "../../store/activeConversation";
 import { markAsRead } from "../../store/utils/thunkCreators";
@@ -20,10 +20,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+
+
 const Chat = (props) => {
   const classes = useStyles();
   const { conversation } = props;
   const { otherUser } = conversation;
+  const unreadMsgs = conversation.unreadMessageCounts.find(item => item.senderId === conversation.otherUser.id)
 
   const handleClick = async (conversation) => {
     await props.markAsRead({
@@ -42,6 +45,7 @@ const Chat = (props) => {
         sidebar={true}
       />
       <ChatContent conversation={conversation} />
+      <UnreadMessagesCountBadge count={unreadMsgs.count} />
     </Box>
   );
 };

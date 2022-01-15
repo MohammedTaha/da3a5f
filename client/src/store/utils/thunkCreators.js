@@ -5,6 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  updateUnreadMessagesCountAction,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -116,8 +117,8 @@ const requestToMarkAsRead = async (body) => {
 
 export const markAsRead = (body) => async (dispatch) => {
   try {
-    let resp = await requestToMarkAsRead(body);
-    console.log(resp)
+    await requestToMarkAsRead(body);
+    dispatch(updateUnreadMessagesCountAction(body));
   } catch (e) {
     console.error(e);
   }
