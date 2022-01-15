@@ -2,6 +2,7 @@ const db = require("./db");
 const { User } = require("./models");
 const Conversation = require("./models/conversation");
 const Message = require("./models/message");
+const UnreadMessageCounts = require("./models/unreadMessageCounts");
 
 async function seed() {
   await db.sync({ force: true });
@@ -44,6 +45,19 @@ async function seed() {
     text: "Share photo of your city, please",
   });
 
+  await UnreadMessageCounts.create({
+    conversationId: santaigoConvo.id,
+    senderId: santiago.id,
+    recipientId: thomas.id,
+    count: 1,
+  });
+  await UnreadMessageCounts.create({
+    conversationId: santaigoConvo.id,
+    senderId: thomas.id,
+    recipientId: santiago.id,
+    count: 0,
+  });
+
   const chiumbo = await User.create({
     username: "chiumbo",
     email: "chiumbo@email.com",
@@ -59,6 +73,12 @@ async function seed() {
     conversationId: chiumboConvo.id,
     senderId: chiumbo.id,
     text: "Sure! What time?",
+  });
+  await UnreadMessageCounts.create({
+    conversationId: chiumboConvo.id,
+    senderId: chiumbo.id,
+    recipientId: thomas.id,
+    count: 1,
   });
 
   const hualing = await User.create({
@@ -86,6 +106,14 @@ async function seed() {
     senderId: hualing.id,
     text: "😂 😂 😂",
   });
+
+  await UnreadMessageCounts.create({
+    conversationId: hualingConvo.id,
+    senderId: hualing.id,
+    recipientId: thomas.id,
+    count: 12,
+  });
+
 
   const otherUsers = await Promise.all([
     ,
