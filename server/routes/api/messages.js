@@ -46,14 +46,22 @@ router.post("/", async (req, res, next) => {
     });
 
     try {
-      await UnreadMessageCounts.create({
-        conversationId: conversation.id,
-        senderId,
-        recipientId,
-        count: 1,
-      });
+      Promise.all([
+        await UnreadMessageCounts.create({
+          conversationId: conversation.id,
+          senderId,
+          recipientId,
+          count: 1,
+        }),
+        await UnreadMessageCounts.create({
+          conversationId: conversation.id,
+          senderId: recipientId,
+          recipientId: senderId,
+          count: 0,
+        }),
+      ]);
     } catch (e) {
-      console.log("Unable to do increment..!");
+      console.log("Unable to create count..!");
       console.log(e.code);
       console.log(e.message);
     }

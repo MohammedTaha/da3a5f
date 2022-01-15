@@ -14,10 +14,6 @@ const UnreadMessageCounts = db.define("unreadMessageCounts", {
     type: Sequelize.INTEGER,
     allowNull: false,
   },
-//   lastUpdatedOn: {
-//     type: Sequelize.DATE,
-//     allowNull: false,
-//   },
   count: {
     type: Sequelize.INTEGER,
     allowNull: false,

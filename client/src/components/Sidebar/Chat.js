@@ -20,19 +20,23 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-
-
 const Chat = (props) => {
   const classes = useStyles();
   const { conversation } = props;
   const { otherUser } = conversation;
-  const unreadMsgs = conversation.unreadMessageCounts.find(item => item.senderId === conversation.otherUser.id)
+  const unreadMsgs = conversation.unreadMessageCounts
+    ? conversation.unreadMessageCounts.find(
+        (item) => item.senderId === conversation.otherUser.id
+      )
+    : null;
 
   const handleClick = async (conversation) => {
-    await props.markAsRead({
-      conversationId: conversation.id,
-      senderId: conversation.otherUser.id,
-    });
+    if (unreadMsgs && unreadMsgs.count) {
+      await props.markAsRead({
+        conversationId: conversation.id,
+        senderId: conversation.otherUser.id,
+      });
+    }
     await props.setActiveChat(conversation.otherUser.username);
   };
 
@@ -45,7 +49,7 @@ const Chat = (props) => {
         sidebar={true}
       />
       <ChatContent conversation={conversation} />
-      <UnreadMessagesCountBadge count={unreadMsgs.count} />
+      <UnreadMessagesCountBadge count={unreadMsgs ? unreadMsgs.count: 0} />
     </Box>
   );
 };
