@@ -6,6 +6,7 @@ import {
   addOnlineUser,
 } from "./store/conversations";
 
+
 const socket = io(window.location.origin);
 
 socket.on("connect", () => {
@@ -19,7 +20,13 @@ socket.on("connect", () => {
     store.dispatch(removeOfflineUser(id));
   });
   socket.on("new-message", (data) => {
-    store.dispatch(setNewMessage(data.message, data.sender));
+    let activeConversation = store.getState().activeConversation;
+    let thisConversation = store.getState().conversations.find(conversation => conversation.id === data.message.conversationId);
+    let isConversationActive = false;
+    if (thisConversation && thisConversation.otherUser && thisConversation.otherUser.username) {
+      isConversationActive = activeConversation === thisConversation.otherUser.username
+    }
+    store.dispatch(setNewMessage(data.message, data.sender, isConversationActive));
   });
 });
 
