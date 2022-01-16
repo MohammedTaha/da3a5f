@@ -11,6 +11,7 @@ const { app, sessionStore } = require("../app");
 const http = require("http");
 const db = require("../db");
 const onlineUsers = require("../onlineUsers");
+const activeConversations = require("../utils/activeConversations");
 
 /**
  * Get port from environment and store in Express.
@@ -54,6 +55,11 @@ io.on("connection", (socket) => {
       socket.broadcast.emit("remove-offline-user", id);
     }
   });
+
+  socket.on("mark-as-active", (data) => {
+    activeConversations.setAsActive(data);
+  });
+  
 });
 
 sessionStore

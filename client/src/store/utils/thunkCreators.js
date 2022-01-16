@@ -7,6 +7,7 @@ import {
   setSearchedUsers,
   updateUnreadMessagesCountAction,
 } from "../conversations";
+import { setActiveChat } from "../activeConversation";
 import { gotUser, setFetchingStatus } from "../user";
 
 axios.interceptors.request.use(async function (config) {
@@ -131,4 +132,13 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
   } catch (error) {
     console.error(error);
   }
+};
+
+const updateActiveConversationMap = ({ conversationId, senderId }) => {
+  socket.emit("mark-as-active", { conversationId, senderId });
+};
+
+export const addAsActiveChat = (data) => (dispatch) => {
+  updateActiveConversationMap(data);
+  dispatch(setActiveChat(data.otherUserName));
 };
