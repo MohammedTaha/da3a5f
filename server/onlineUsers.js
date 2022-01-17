@@ -1,2 +1,2 @@
-const onlineUsers = [];
+const onlineUsers = {}; //{[userId]: {socketId:?, ... }}
 module.exports = onlineUsers;
