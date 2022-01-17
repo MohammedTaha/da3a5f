@@ -1,6 +1,7 @@
 export const addMessageToStore = (state, payload) => {
   const { message, sender, isConversationActive } = payload;
   // if sender isn't null, that means the message needs to be put in a brand new convo
+
   if (sender !== null) {
     const newConvo = {
       id: message.conversationId,
