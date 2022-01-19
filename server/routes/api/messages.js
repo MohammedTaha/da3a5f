@@ -19,7 +19,9 @@ router.post("/", async (req, res, next) => {
     // if we already know conversation id, we can save time and just add it to message and return
     if (conversationId) {
       const message = await Message.create({ senderId, text, conversationId });
-      if (!activeConversations.getIsActiveFor({ conversationId, recipientId })) {
+      if (
+        !activeConversations.getIsActiveFor({ conversationId, recipientId })
+      ) {
         await UnreadMessageCounts.increment("count", {
           where: { conversationId, senderId, recipientId },
         });
@@ -52,26 +54,20 @@ router.post("/", async (req, res, next) => {
       conversationId: conversation.id,
     });
 
-    try {
-      Promise.all([
-        await UnreadMessageCounts.create({
-          conversationId: conversation.id,
-          senderId,
-          recipientId,
-          count: 1,
-        }),
-        await UnreadMessageCounts.create({
-          conversationId: conversation.id,
-          senderId: recipientId,
-          recipientId: senderId,
-          count: 0,
-        }),
-      ]);
-    } catch (e) {
-      console.log("Unable to create count..!");
-      console.log(e.code);
-      console.log(e.message);
-    }
+    Promise.all([
+      await UnreadMessageCounts.create({
+        conversationId: conversation.id,
+        senderId,
+        recipientId,
+        count: 1,
+      }),
+      await UnreadMessageCounts.create({
+        conversationId: conversation.id,
+        senderId: recipientId,
+        recipientId: senderId,
+        count: 0,
+      }),
+    ]);
     res.json({ message, sender });
   } catch (error) {
     next(error);
