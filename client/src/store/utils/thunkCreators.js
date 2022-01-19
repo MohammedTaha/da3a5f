@@ -112,7 +112,7 @@ export const postMessage = (body) => async (dispatch) => {
 };
 
 const requestToMarkAsRead = async (body) => {
-  const { data } = await axios.patch("/api/unreadMessageCounts", body);
+  const { data } = await axios.patch("/api/unread-message-counts", body);
   return data;
 };
 

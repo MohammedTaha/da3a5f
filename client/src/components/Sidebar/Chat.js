@@ -28,9 +28,10 @@ const Chat = (props) => {
         (item) => item.senderId === conversation.otherUser.id
       )
     : null;
+  const unreadMessagesCount = unreadMsgs?.count;
 
   const handleClick = async (conversation) => {
-    if (unreadMsgs && unreadMsgs.count) {
+    if (unreadMessagesCount) {
       await props.markAsRead({
         conversationId: conversation.id,
         senderId: conversation.otherUser.id,
@@ -41,8 +42,6 @@ const Chat = (props) => {
       senderId: props.user.id,
       otherUserName: conversation.otherUser.username,
     });
-    // {conversationId: conversation.id, senderId:  props.user.id}
-    // await props.setActiveChat(conversation.otherUser.username);
   };
 
   return (
@@ -53,8 +52,11 @@ const Chat = (props) => {
         online={otherUser.online}
         sidebar={true}
       />
-      <ChatContent conversation={conversation} />
-      <UnreadMessagesCountBadge count={unreadMsgs ? unreadMsgs.count : 0} />
+      <ChatContent
+        conversation={conversation}
+        haveUnreadMessages={!!unreadMessagesCount}
+      />
+      <UnreadMessagesCountBadge count={unreadMessagesCount} />
     </Box>
   );
 };

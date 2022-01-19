@@ -19,7 +19,7 @@ export const addMessageToStore = (state, payload) => {
     if (convo.id === message.conversationId) {
       let unreadMessageCounts = convo.unreadMessageCounts;
       if (!isConversationActive) {
-        unreadMessageCounts = [...convo.unreadMessageCounts].map((item) => {
+        unreadMessageCounts = convo.unreadMessageCounts.map((item) => {
           if (item.senderId === message.senderId) {
             return { ...item, count: ++item.count };
           }
@@ -119,7 +119,7 @@ export const updateUnreadMessagesCount = (
     if (convo.id === conversationId) {
       return {
         ...convo,
-        unreadMessageCounts: [...convo.unreadMessageCounts].map((item) => {
+        unreadMessageCounts: convo.unreadMessageCounts.map((item) => {
           if (item.senderId === senderId) {
             return { ...item, count: 0 };
           }

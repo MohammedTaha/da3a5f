@@ -23,7 +23,7 @@ socket.on("connect", () => {
     let activeConversation = store.getState().activeConversation;
     let thisConversation = store.getState().conversations.find(conversation => conversation.id === data.message.conversationId);
     let isConversationActive = false;
-    if (thisConversation && thisConversation.otherUser && thisConversation.otherUser.username) {
+    if (thisConversation?.otherUser?.username) {
       isConversationActive = activeConversation === thisConversation.otherUser.username
     }
     store.dispatch(setNewMessage(data.message, data.sender, isConversationActive));
