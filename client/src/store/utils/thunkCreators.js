@@ -119,7 +119,9 @@ const requestToMarkAsRead = async (body) => {
 export const markAsRead = (body) => async (dispatch) => {
   try {
     await requestToMarkAsRead(body);
+    socket.emit("notify-already-read", body);
     dispatch(updateUnreadMessagesCountAction(body));
+    
   } catch (e) {
     console.error(e);
   }

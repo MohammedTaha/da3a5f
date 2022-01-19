@@ -4,6 +4,7 @@ import {
   setNewMessage,
   removeOfflineUser,
   addOnlineUser,
+  updateUnreadMessagesCountAction
 } from "./store/conversations";
 
 
@@ -28,6 +29,10 @@ socket.on("connect", () => {
     }
     store.dispatch(setNewMessage(data.message, data.sender, isConversationActive));
   });
+  socket.on('notify-already-read', ({ conversationId, senderId}) => {
+    store.dispatch(updateUnreadMessagesCountAction({ conversationId, senderId}));
+  })
+
 });
 
 export default socket;

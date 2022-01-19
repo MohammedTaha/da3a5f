@@ -56,6 +56,10 @@ io.on("connection", (socket) => {
     activeConversations.setAsActive(data);
   });
 
+  socket.on('notify-already-read', (data) => {
+    socket.broadcast.emit("notify-already-read", data)
+  });
+
   socket.on("disconnect", () => {
     let userId = 0;
     for (let uId in onlineUsers) {

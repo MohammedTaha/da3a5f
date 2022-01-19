@@ -16,6 +16,7 @@ export const addMessageToStore = (state, payload) => {
   }
 
   return state.map((convo) => {
+    convo.messages = convo.messages.map(({isLastReadMessage, ...defaultProps}) => defaultProps);
     if (convo.id === message.conversationId) {
       let unreadMessageCounts = convo.unreadMessageCounts;
       if (!isConversationActive) {
@@ -117,6 +118,7 @@ export const updateUnreadMessagesCount = (
 ) => {
   return state.map((convo) => {
     if (convo.id === conversationId) {
+      convo.messages = convo.messages.map(({isLastReadMessage, ...defaultProps}) => defaultProps);
       return {
         ...convo,
         unreadMessageCounts: convo.unreadMessageCounts.map((item) => {
