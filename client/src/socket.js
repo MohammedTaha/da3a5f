@@ -21,8 +21,8 @@ socket.on("connect", () => {
     store.dispatch(removeOfflineUser(id));
   });
   socket.on("new-message", (data) => {
-    let activeConversation = store.getState().activeConversation;
-    let thisConversation = store.getState().conversations.find(conversation => conversation.id === data.message.conversationId);
+    const activeConversation = store.getState().activeConversation;
+    const thisConversation = store.getState().conversations.find(conversation => conversation.id === data.message.conversationId);
     let isConversationActive = false;
     if (thisConversation?.otherUser?.username) {
       isConversationActive = activeConversation === thisConversation.otherUser.username

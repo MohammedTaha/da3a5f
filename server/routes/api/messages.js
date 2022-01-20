@@ -54,14 +54,14 @@ router.post("/", async (req, res, next) => {
       conversationId: conversation.id,
     });
 
-    Promise.all([
-      await UnreadMessageCounts.create({
+    await Promise.all([
+      UnreadMessageCounts.create({
         conversationId: conversation.id,
         senderId,
         recipientId,
         count: 1,
       }),
-      await UnreadMessageCounts.create({
+      UnreadMessageCounts.create({
         conversationId: conversation.id,
         senderId: recipientId,
         recipientId: senderId,
