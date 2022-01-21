@@ -4,7 +4,8 @@ import {
   setNewMessage,
   removeOfflineUser,
   addOnlineUser,
-  updateUnreadMessagesCountAction
+  unsetUnreadMessagesCountAction,
+  overrideConversationReadCounts
 } from "./store/conversations";
 
 
@@ -20,17 +21,17 @@ socket.on("connect", () => {
   socket.on("remove-offline-user", (id) => {
     store.dispatch(removeOfflineUser(id));
   });
+
   socket.on("new-message", (data) => {
-    const activeConversation = store.getState().activeConversation;
-    const thisConversation = store.getState().conversations.find(conversation => conversation.id === data.message.conversationId);
-    let isConversationActive = false;
-    if (thisConversation?.otherUser?.username) {
-      isConversationActive = activeConversation === thisConversation.otherUser.username
-    }
-    store.dispatch(setNewMessage(data.message, data.sender, isConversationActive));
+    store.dispatch(setNewMessage(data.message, data.sender));
   });
+
   socket.on('notify-already-read', ({ conversationId, senderId}) => {
-    store.dispatch(updateUnreadMessagesCountAction({ conversationId, senderId}));
+    store.dispatch(unsetUnreadMessagesCountAction({ conversationId, senderId}));
+  });
+
+  socket.on('update-unread-counts', (data) => {
+    store.dispatch(overrideConversationReadCounts(data));
   })
 
 });

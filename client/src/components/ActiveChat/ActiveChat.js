@@ -25,24 +25,6 @@ const ActiveChat = (props) => {
   const { user } = props;
   const conversation = props.conversation || {};
 
-  if (conversation.messages?.length) {
-    const otherUserId = conversation.otherUser.id
-    const unreadMessagesCount = conversation.unreadMessageCounts.find(({recipientId}) => {
-      return recipientId === otherUserId;
-    })?.count;
-    const myMsgs = conversation.messages.filter(({senderId}) => senderId === user.id);
-    const lastReadMessageIndex = (myMsgs.length - unreadMessagesCount) - 1;
-    const lastReadMessage = myMsgs[lastReadMessageIndex];
-    if (lastReadMessage) {
-      const msgByOtherUserAfterLastRead = conversation.messages.some((msg) => {
-        return msg.senderId === otherUserId && new Date(msg.createdAt) > new Date(lastReadMessage.createdAt);
-      });
-      if(!msgByOtherUserAfterLastRead) {
-        lastReadMessage.isLastReadMessage = true
-      }
-    }
-  }
-
   return (
     <Box className={classes.root}>
       {conversation.otherUser && (

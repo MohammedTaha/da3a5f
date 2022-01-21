@@ -5,7 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
-  updateUnreadMessagesCountAction,
+  unsetUnreadMessagesCountAction,
 } from "../conversations";
 import { setActiveChat } from "../activeConversation";
 import { gotUser, setFetchingStatus } from "../user";
@@ -120,7 +120,7 @@ export const markAsRead = (body) => async (dispatch) => {
   try {
     await requestToMarkAsRead(body);
     socket.emit("notify-already-read", body);
-    dispatch(updateUnreadMessagesCountAction(body));
+    dispatch(unsetUnreadMessagesCountAction(body));
     
   } catch (e) {
     console.error(e);

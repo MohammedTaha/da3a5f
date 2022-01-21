@@ -1,5 +1,25 @@
+export const setConversationsInStore = (state, payload) => {
+  // return payload.conversations
+  return payload.conversations.map((convo) => {
+    const allMsgs = convo.messages.map(
+      ({ isLastReadMessage, ...defaultProps }) => defaultProps
+    );
+    const unread = convo.unreadMessageCounts.find((c) => !!c.count);
+    if (unread) {
+      const lastReadMessage = allMsgs[allMsgs.length - 1 - unread.count];
+      if (lastReadMessage) {
+        lastReadMessage.isLastReadMessage = true;
+      }
+    }
+    return {
+      ...convo,
+      messages: allMsgs,
+    };
+  });
+};
+
 export const addMessageToStore = (state, payload) => {
-  const { message, sender, isConversationActive } = payload;
+  const { message, sender } = payload;
   // if sender isn't null, that means the message needs to be put in a brand new convo
 
   if (sender !== null) {
@@ -16,20 +36,9 @@ export const addMessageToStore = (state, payload) => {
   }
 
   return state.map((convo) => {
-    convo.messages = convo.messages.map(({isLastReadMessage, ...defaultProps}) => defaultProps);
     if (convo.id === message.conversationId) {
-      let unreadMessageCounts = convo.unreadMessageCounts;
-      if (!isConversationActive) {
-        unreadMessageCounts = convo.unreadMessageCounts.map((item) => {
-          if (item.senderId === message.senderId) {
-            return { ...item, count: ++item.count };
-          }
-          return item;
-        });
-      }
       return {
         ...convo,
-        unreadMessageCounts,
         messages: [...convo.messages, message],
         latestMessageText: message.text,
       };
@@ -112,13 +121,15 @@ export const addNewConvoToStore = (state, recipientId, message) => {
   });
 };
 
-export const updateUnreadMessagesCount = (
+export const unsetUnreadMessagesCount = (
   state,
   { conversationId, senderId }
 ) => {
   return state.map((convo) => {
     if (convo.id === conversationId) {
-      convo.messages = convo.messages.map(({isLastReadMessage, ...defaultProps}) => defaultProps);
+      convo.messages = convo.messages.map(
+        ({ isLastReadMessage, ...defaultProps }) => defaultProps
+      );
       return {
         ...convo,
         unreadMessageCounts: convo.unreadMessageCounts.map((item) => {
@@ -131,5 +142,31 @@ export const updateUnreadMessagesCount = (
     } else {
       return convo;
     }
+  });
+};
+
+export const onOverrideConversationReadCounts = (
+  state,
+  { conversationId, unreadCounts }
+) => {
+  return state.map((convo) => {
+    if (convo.id === conversationId) {
+      const allMsgs = convo.messages.map(
+        ({ isLastReadMessage, ...defaultProps }) => defaultProps
+      );
+      const unread = unreadCounts.find((c) => !!c.count);
+      if (unread) {
+        const lastReadMessage = allMsgs[allMsgs.length - 1 - unread.count];
+        if (lastReadMessage) {
+          lastReadMessage.isLastReadMessage = true;
+        }
+      }
+      return {
+        ...convo,
+        messages: allMsgs,
+        unreadMessageCounts: unreadCounts,
+      };
+    }
+    return convo;
   });
 };
