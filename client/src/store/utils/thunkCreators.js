@@ -5,7 +5,9 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  unsetUnreadMessagesCountAction,
 } from "../conversations";
+import { setActiveChat } from "../activeConversation";
 import { gotUser, setFetchingStatus } from "../user";
 
 axios.interceptors.request.use(async function (config) {
@@ -109,6 +111,22 @@ export const postMessage = (body) => async (dispatch) => {
   }
 };
 
+const requestToMarkAsRead = async (body) => {
+  const { data } = await axios.patch("/api/unread-message-counts", body);
+  return data;
+};
+
+export const markAsRead = (body) => async (dispatch) => {
+  try {
+    await requestToMarkAsRead(body);
+    socket.emit("notify-already-read", body);
+    dispatch(unsetUnreadMessagesCountAction(body));
+    
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 export const searchUsers = (searchTerm) => async (dispatch) => {
   try {
     const { data } = await axios.get(`/api/users/${searchTerm}`);
@@ -116,4 +134,13 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
   } catch (error) {
     console.error(error);
   }
+};
+
+const updateActiveConversationMap = ({ conversationId, senderId }) => {
+  socket.emit("mark-as-active", { conversationId, senderId });
+};
+
+export const addAsActiveChat = (data) => (dispatch) => {
+  updateActiveConversationMap(data);
+  dispatch(setActiveChat(data.otherUserName));
 };

@@ -1,9 +1,12 @@
 import {
+  setConversationsInStore,
   addNewConvoToStore,
   addOnlineUserToStore,
   addSearchedUsersToStore,
   removeOfflineUserFromStore,
   addMessageToStore,
+  unsetUnreadMessagesCount,
+  onOverrideConversationReadCounts,
 } from "./utils/reducerFunctions";
 
 // ACTIONS
@@ -15,6 +18,8 @@ const REMOVE_OFFLINE_USER = "REMOVE_OFFLINE_USER";
 const SET_SEARCHED_USERS = "SET_SEARCHED_USERS";
 const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
+const UNSET_UNREAD_MESSAGES_COUNT = "UNSET_UNREAD_MESSAGES_COUNT";
+const OVERRIDE_CONVERSATION_READ_COUNTS = "OVERRIDE_CONVERSATION_READ_COUNTS";
 
 // ACTION CREATORS
 
@@ -25,10 +30,10 @@ export const gotConversations = (conversations) => {
   };
 };
 
-export const setNewMessage = (message, sender) => {
+export const setNewMessage = (message, sender, isConversationActive) => {
   return {
     type: SET_MESSAGE,
-    payload: { message, sender: sender || null },
+    payload: { message, sender: sender || null, isConversationActive},
   };
 };
 
@@ -67,12 +72,25 @@ export const addConversation = (recipientId, newMessage) => {
   };
 };
 
+export const unsetUnreadMessagesCountAction = ({conversationId, senderId}) => {
+  return {
+    type: UNSET_UNREAD_MESSAGES_COUNT,
+    payload: {conversationId, senderId},
+  };
+};
+
+export const overrideConversationReadCounts = ({conversationId, unreadCounts}) => {
+  return {
+    type: OVERRIDE_CONVERSATION_READ_COUNTS,
+    payload: {conversationId, unreadCounts},
+  };
+}
 // REDUCER
 
 const reducer = (state = [], action) => {
   switch (action.type) {
     case GET_CONVERSATIONS:
-      return action.conversations;
+      return setConversationsInStore(state, action);
     case SET_MESSAGE:
       return addMessageToStore(state, action.payload);
     case ADD_ONLINE_USER: {
@@ -91,6 +109,16 @@ const reducer = (state = [], action) => {
         action.payload.recipientId,
         action.payload.newMessage
       );
+    case UNSET_UNREAD_MESSAGES_COUNT:
+      return unsetUnreadMessagesCount(
+        state,
+        action.payload
+      );
+    case OVERRIDE_CONVERSATION_READ_COUNTS: 
+        return onOverrideConversationReadCounts(
+          state, 
+          action.payload
+        );
     default:
       return state;
   }

@@ -11,6 +11,8 @@ const { app, sessionStore } = require("../app");
 const http = require("http");
 const db = require("../db");
 const onlineUsers = require("../onlineUsers");
+const activeConversations = require("../utils/activeConversations");
+const { UnreadMessageCounts } = require("../db/models");
 
 /**
  * Get port from environment and store in Express.
@@ -33,25 +35,58 @@ const io = require("socket.io")(server);
 
 io.on("connection", (socket) => {
   socket.on("go-online", (id) => {
-    if (!onlineUsers.includes(id)) {
-      onlineUsers.push(id);
-    }
-    // send the user who just went online to everyone else who is already online
+    onlineUsers[id] = { socketId: socket.id };
     socket.broadcast.emit("add-online-user", id);
   });
 
-  socket.on("new-message", (data) => {
+  socket.on("new-message", async (data) => {
+    const { conversationId } = data.message;
     socket.broadcast.emit("new-message", {
       message: data.message,
       sender: data.sender,
     });
+    const unreadCounts = await UnreadMessageCounts.findAll({
+      where: { conversationId },
+    });
+    for (let i = 0; i < unreadCounts.length; i++) {
+      const unreadCountsJson = unreadCounts[i].toJSON();
+      const onlineUserDetails = onlineUsers[unreadCountsJson.recipientId];
+      if (onlineUserDetails?.socketId) {
+        io.to(onlineUserDetails.socketId).emit("update-unread-counts", {
+          conversationId,
+          unreadCounts,
+        });
+      }
+    }
   });
 
   socket.on("logout", (id) => {
-    if (onlineUsers.includes(id)) {
-      userIndex = onlineUsers.indexOf(id);
-      onlineUsers.splice(userIndex, 1);
+    if (onlineUsers[id]) {
+      delete onlineUsers[id];
       socket.broadcast.emit("remove-offline-user", id);
+    }
+  });
+
+  socket.on("mark-as-active", (data) => {
+    activeConversations.setAsActive(data);
+  });
+
+  socket.on("notify-already-read", (data) => {
+    socket.broadcast.emit("notify-already-read", data);
+  });
+
+  socket.on("disconnect", () => {
+    let userId = 0;
+    for (let uId in onlineUsers) {
+      if (onlineUsers[uId].socketId === socket.id) {
+        userId = uId;
+        break;
+      }
+    }
+
+    if (userId) {
+      activeConversations.setAsInactive(userId);
+      onlineUsers[userId] = { ...onlineUsers[userId], socketId: null };
     }
   });
 });

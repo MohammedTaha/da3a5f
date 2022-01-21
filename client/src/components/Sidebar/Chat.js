@@ -1,8 +1,8 @@
 import React from "react";
 import { Box } from "@material-ui/core";
-import { BadgeAvatar, ChatContent } from "../Sidebar";
+import { BadgeAvatar, ChatContent, UnreadMessagesCountBadge } from "../Sidebar";
 import { makeStyles } from "@material-ui/core/styles";
-import { setActiveChat } from "../../store/activeConversation";
+import { markAsRead, addAsActiveChat } from "../../store/utils/thunkCreators";
 import { connect } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
@@ -14,18 +14,34 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     "&:hover": {
-      cursor: "grab"
-    }
-  }
+      cursor: "grab",
+    },
+  },
 }));
 
 const Chat = (props) => {
   const classes = useStyles();
   const { conversation } = props;
   const { otherUser } = conversation;
+  const unreadMsgs = conversation.unreadMessageCounts
+    ? conversation.unreadMessageCounts.find(
+        (item) => item.senderId === conversation.otherUser.id
+      )
+    : null;
+  const unreadMessagesCount = unreadMsgs?.count;
 
   const handleClick = async (conversation) => {
-    await props.setActiveChat(conversation.otherUser.username);
+    if (unreadMessagesCount) {
+      await props.markAsRead({
+        conversationId: conversation.id,
+        senderId: conversation.otherUser.id,
+      });
+    }
+    props.addAsActiveChat({
+      conversationId: conversation.id,
+      senderId: props.user.id,
+      otherUserName: conversation.otherUser.username,
+    });
   };
 
   return (
@@ -36,17 +52,30 @@ const Chat = (props) => {
         online={otherUser.online}
         sidebar={true}
       />
-      <ChatContent conversation={conversation} />
+      <ChatContent
+        conversation={conversation}
+        haveUnreadMessages={!!unreadMessagesCount}
+      />
+      <UnreadMessagesCountBadge count={unreadMessagesCount} />
     </Box>
   );
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapStateToProps = (state) => {
   return {
-    setActiveChat: (id) => {
-      dispatch(setActiveChat(id));
-    }
+    user: state.user,
   };
 };
 
-export default connect(null, mapDispatchToProps)(Chat);
+const mapDispatchToProps = (dispatch) => {
+  return {
+    addAsActiveChat: (data) => {
+      dispatch(addAsActiveChat(data));
+    },
+    markAsRead: (convoDetails) => {
+      dispatch(markAsRead(convoDetails));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Chat);
