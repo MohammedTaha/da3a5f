@@ -6,10 +6,6 @@ const UnreadMessageCounts = db.define("unreadMessageCounts", {
     type: Sequelize.INTEGER,
     allowNull: false,
   },
-  senderId: {
-    type: Sequelize.INTEGER,
-    allowNull: false,
-  },
   recipientId: {
     type: Sequelize.INTEGER,
     allowNull: false,
