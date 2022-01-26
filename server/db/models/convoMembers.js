@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 const db = require("../db");
 
-const convoMembers = db.define("convoMembers", {
+const ConvoMembers = db.define("convoMembers", {
   userId: {
     type: Sequelize.INTEGER,
     allowNull: false,
@@ -12,4 +12,4 @@ const convoMembers = db.define("convoMembers", {
   },
 });
 
-module.exports = convoMembers;
+module.exports = ConvoMembers;
